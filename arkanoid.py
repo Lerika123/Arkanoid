@@ -1,60 +1,93 @@
 import pygame
 
 
-pipe_x = 400
-pipe_y = 420
-
-
 def load_image(name):
     image = pygame.image.load(f"{'data'}/{name}")
     return image
 
 
+class Arkanoid():
+    pygame.init()
+    size = width, height = 500, 500
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('Арканоид')
+
+    all_sprites = pygame.sprite.Group()
+    sprite = pygame.sprite.Sprite(all_sprites)
+    sprite.image = pygame.transform.rotate(load_image("platform.png").convert_alpha(), 0)
+    sprite.rect = sprite.image.get_rect()
+    sprite.rect[0] = platform_x = 400
+    sprite.rect[1] = platform_y = 420
+    clock = pygame.time.Clock()
+    running = True
+    c = (100, 10)
+    f = 1
+    s = 2
+    r = 0
+    while running:
+        all_sprites.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
+                s *= -1
+            key = pygame.key.get_pressed()
+        screen.fill('black')
+        if f:
+            circles = list(c) + [1, 1]
+            f = 0
+        if circles[1] < 10 or circles[1] > 490:
+            circles[3] *= -1
+        if circles[0] < 10 or circles[0] > 490:
+            circles[2] *= -1
+        circles[0] += circles[2]
+        circles[1] += circles[3]
+        if (max(platform_x, circles[0], platform_x + 148, circles[0] + 10) - min(platform_x, circles[0],
+                platform_x + 148, circles[0] + 10) <= 148 + 10 and circles[1] >= 465):
+            circles[3] *= -1
+        pygame.draw.circle(screen, 'white', (circles[0], circles[1]), 10)
+        platform_x -= s
+        if platform_x == -24:
+            s = -2
+        if platform_x == 380:
+            s = 2
+        if circles[1] == 490:
+            r += 1
+            print(r)
+            break
+        screen.blit(sprite.image, (platform_x, platform_y))
+        pygame.display.flip()
+        clock.tick(100)
+    pygame.quit()
+
+
 pygame.init()
-size = width, height = 500, 500
+screen = pygame.display.set_mode((640, 480))
+clock = pygame.time.Clock()
+done = False
+
+font = pygame.font.SysFont("Risk", 72)
+
+text = font.render("GameOver", True, (0, 128, 0))
+
+
+size = width, height = 800, 600
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption('Шарики')
+pygame.display.set_caption('Игра окончена')
 
 all_sprites = pygame.sprite.Group()
-sprite = pygame.sprite.Sprite(all_sprites)
-sprite.image = pygame.transform.rotate(load_image("platform.png").convert_alpha(), 0)
-sprite.rect = sprite.image.get_rect()
+
 clock = pygame.time.Clock()
 running = True
-c = (250, 100)
-circles = []
-f = 1
-s = 2
 while running:
     all_sprites.update()
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             running = False
-        key = pygame.key.get_pressed()
-        if key[pygame.K_LEFT]:
-            sprite.rect.left -= 10
-        if key[pygame.K_RIGHT]:
-            sprite.rect.left += 10
     screen.fill('black')
-    if f:
-        circles.append(list(c) + [1, 1])
-        f = 0
-    for x in circles:
-        if x[1] < 10 or x[1] > 490:
-            x[3] *= -1
-        if x[0] < 10 or x[0] > 490:
-            x[2] *= -1
-        if sprite.image.overlap_area(circles[:2], offset) > 0:
-        x[0] += x[2]
-        x[1] += x[3]
-        pygame.draw.circle(screen, 'white', (x[0], x[1]), 10)
-    pipe_x -= s
-    if pipe_x == -24:
-        s = -2
-    if pipe_x == 380:
-        s = 2
-    screen.blit(sprite.image, (pipe_x, pipe_y))
-    # all_sprites.draw(screen)
+    screen.blit(text, (320 - text.get_width() // 2, 240 - text.get_height() // 2))
+    all_sprites.draw(screen)
     pygame.display.flip()
     clock.tick(60)
+    pygame.time.wait(10)
 pygame.quit()
