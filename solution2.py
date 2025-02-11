@@ -36,17 +36,27 @@ class Start():
 
 
 class Arkanoid():
+    def get_sprite(sheet, x, y, width, height):
+        sprite = pygame.Surface((width, height))
+        sprite.blit(sheet, (0, 0), (x, y, width, height))
+        sprite.set_colorkey((0, 0, 0))  # Set transparent color
+        return sprite
+
     pygame.init()
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption('Арканоид')
 
+    size = pygame.display.get_window_size()
+
     all_sprites = pygame.sprite.Group()
     sprite = pygame.sprite.Sprite(all_sprites)
-    sprite.image = pygame.transform.rotate(load_image("platform.png").convert_alpha(), 0)
-    sprite.rect = sprite.image.get_rect()
-    size = pygame.display.get_window_size()
-    sprite.rect[0] = platform_x = size[0] - 100
-    sprite.rect[1] = platform_y = size[1] - 80
+    sprite.platform = pygame.transform.rotate(load_image("platform.png").convert_alpha(), 0)
+    sprite.rectplatform = sprite.platform.get_rect()
+    sprite.rectplatform[0] = platform_x = size[0] - 100
+    sprite.rectplatform[1] = platform_y = size[1] - 80
+
+    sprite1 = pygame.image.load("1.png")
+
     clock = pygame.time.Clock()
     running = True
     c = (100, 10)
@@ -84,36 +94,9 @@ class Arkanoid():
             r += 1
             print(size)
             break
-        screen.blit(sprite.image, (platform_x, platform_y))
+        screen.blit(sprite.platform, (platform_x, platform_y))
+        screen.blit(sprite1, (1000, 500))
+
         pygame.display.flip()
-        clock.tick(100)
-    pygame.quit()
-
-
-class OverGame():
-    pygame.init()
-
-    font = pygame.font.SysFont("Risk", 72)
-
-    text = font.render("Game Over", True, (0, 128, 0))
-
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    pygame.display.set_caption('Игра окончена')
-
-    all_sprites = pygame.sprite.Group()
-
-    size = pygame.display.get_window_size()
-    clock = pygame.time.Clock()
-    running = True
-    while running:
-        all_sprites.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
-                running = False
-        screen.fill('black')
-        screen.blit(text, (size[0] // 2 - text.get_width() // 2, size[1] // 2 - text.get_height() // 2))
-        all_sprites.draw(screen)
-        pygame.display.flip()
-        clock.tick(60)
-        pygame.time.wait(10)
+        clock.tick(500)
     pygame.quit()
